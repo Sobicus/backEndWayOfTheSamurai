@@ -49,9 +49,14 @@ const server = http.createServer(async (req, res) => {
             break
         }
         case '/main': {
-            const data = await readFilePromise('pages/main.html')
-            res.write(data)
-            res.end()
+            try {
+                const data = await readFilePromise('pages/main.html')
+                res.write(data)
+                res.end()
+            } catch (err) {
+                res.write('500, page not found')
+                res.end()
+            }
             break
         }
         case '/': {
