@@ -3,6 +3,16 @@ import express from 'express'
 const app = express()
 const port = 3000
 
+const HTTP_STATUSES = {
+    OK_200: 200,
+    CREATED_201: 201,
+    NO_CONTENT: 204,
+
+    BAD_REQUEST: 400,
+    NOT_FOUND: 404,
+
+}
+
 const jsonBodyMiddleware = express.json()
 app.use(jsonBodyMiddleware)
 
@@ -18,7 +28,7 @@ app.get('/', (req, res) => {
     //fetch('http://localhost:3000', {method: 'GET'}).then(res=>res.json()).then(json=>console.log(json))
 })
 app.get('/error', (req, res) => {
-    res.sendStatus(404)
+    res.sendStatus(HTTP_STATUSES.NOT_FOUND)
 })
 app.get('/courses', (req, res) => {
     let foundCourses = db.courses
@@ -31,39 +41,39 @@ app.get('/courses', (req, res) => {
 app.get('/courses/:id', (req, res) => {
     const foundCourse = db.courses.find(c => c.id === +req.params.id);
     if (!foundCourse) {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND)
         return
     }
     res.json(foundCourse)
 })
 app.post('/courses', (req, res) => {
     if (!req.body.title || req.body.title.trim() === '') {
-        res.sendStatus(400)
+        res.sendStatus(HTTP_STATUSES.BAD_REQUEST)
     }
     const createdCourse = {
         id: +(new Date()),
         title: req.body.title.trim()
     };
     db.courses.push(createdCourse)
-    res.status(201).json(createdCourse)
+    res.status(HTTP_STATUSES.CREATED_201).json(createdCourse)
 })
 app.delete('/courses/:id', (req, res) => {
     db.courses = db.courses.filter(c => c.id !== +req.params.id)
-    res.sendStatus(204)
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT)
 })
 app.put('/courses/:id', (req, res) => {
-    if(!req.body.title){
-        res.sendStatus(400)
+    if (!req.body.title) {
+        res.sendStatus(HTTP_STATUSES.BAD_REQUEST)
         return
     }
     const foundCourse = db.courses.find(c => c.id === +req.params.id)
     if (!foundCourse) {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND)
         return
     }
 
     foundCourse.title = req.body.title
-    res.status(204).json(foundCourse)
+    res.status(HTTP_STATUSES.NO_CONTENT).json(foundCourse)
 })
 
 app.listen(port, () => {
